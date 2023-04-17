@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, memo } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Tile } from './Tile';
 import { initRandomTile, directionParams, onceDrop, counterId } from './utils';
 import {
@@ -99,42 +99,32 @@ const Tiles = ({ resize }) => {
   const [sliding, setSliding] = useState(NONE_DIRECTION);
   const mergeTiles = useRef(false);
   const drop = useRef(false);
-  console.log('[Tiles]:', tiles);
+  const refContainer = useRef(null);
 
   useEffect(() => {
-    setTiles(prevTiles => {
-      //const tile = initRandomTile(prevTiles);
-      const tile = { x: 3, y: 2, value: 4, id: counterId(), drop: onceDrop }; // configuration with problem
-      const sortedTiles = sorter([...prevTiles, tile]);
-      return sortedTiles;
-    });
-    setTiles(prevTiles => {
-      //const tile = initRandomTile(prevTiles);
-      const tile = { x: 1, y: 3, value: 2, id: counterId(), drop: onceDrop }; //configuration with problem
-      const sortedTiles = sorter([...prevTiles, tile]);
-      return sortedTiles;
-    });
-  }, []);
-
-  useEffect(() => {
-    console.log('[useEffect Tiles] tiles');
+    function transitionEnd() {
+      if (sliding.action === NONE && drop.current) {
+        drop.current = false;
+        setTiles(prevTiles => {
+          const tile = initRandomTile(prevTiles);
+          const sortedTiles = sorter([...prevTiles, tile]);
+          return sortedTiles;
+        });
+      }
+    }
 
     function handleDirectionEvent(event) {
       switch (event.key) {
         case 'ArrowUp':
-          console.log('[Tiles] listener: ArrowUp');
           setSliding(UP_DIRECTION);
           break;
         case 'ArrowDown':
-          console.log('[Tiles] listener: ArrowDown');
           setSliding(DOWN_DIRECTION);
           break;
         case 'ArrowLeft':
-          console.log('[Tiles] listener: ArrowLeft');
           setSliding(LEFT_DIRECTION);
           break;
         case 'ArrowRight':
-          console.log('[Tiles] listener: ArrowRight');
           setSliding(RIGHT_DIRECTION);
           break;
         default:
@@ -146,6 +136,31 @@ const Tiles = ({ resize }) => {
       });
     }
 
+    window.addEventListener('keydown', handleDirectionEvent, {
+      once: true,
+    });
+    refContainer.current.addEventListener('transitionend', transitionEnd);
+
+    setTiles(prevTiles => {
+      //const tile = initRandomTile(prevTiles);
+      const tile = { x: 2, y: 3, value: 2, id: counterId(), drop: onceDrop }; //configuration with problem
+      const sortedTiles = sorter([...prevTiles, tile]);
+      return sortedTiles;
+    });
+
+    setTiles(prevTiles => {
+      //const tile = initRandomTile(prevTiles);
+      const tile = { x: 3, y: 0, value: 4, id: counterId(), drop: onceDrop }; // configuration with problem
+      const sortedTiles = sorter([...prevTiles, tile]);
+      return sortedTiles;
+    });
+    return () => {
+      window.removeEventListener('keydown', handleDirectionEvent);
+      refContainer.current.removeEventListener('transitionend', transitionEnd);
+    };
+  }, []);
+
+  useEffect(() => {
     if (sliding.action !== NONE) {
       function slide(prevTiles, direction) {
         const { hasMorphed, updateSlide } = step(prevTiles, direction);
@@ -167,31 +182,9 @@ const Tiles = ({ resize }) => {
         setTiles(prevTiles => slide(prevTiles, sliding.action));
       }
     }
-
-    window.addEventListener('keydown', handleDirectionEvent, {
-      once: true,
-    });
-
-    return () => {
-      console.log('[useEffect Tiles] tiles: UNMOUNT');
-      window.removeEventListener('keydown', handleDirectionEvent);
-    };
   }, [tiles, sliding]);
 
   useEffect(() => {
-    console.log('[useEffect Tiles] merge:', mergeTiles.current);
-    function transitionEnd() {
-      console.log('[useEffect Tiles] merge: TRANSACTION END');
-      if (sliding.action === NONE && drop.current) {
-        drop.current = false;
-        setTiles(prevTiles => {
-          const tile = initRandomTile(prevTiles);
-          const sortedTiles = sorter([...prevTiles, tile]);
-          return sortedTiles;
-        });
-      }
-    }
-
     if (mergeTiles.current === true) {
       mergeTiles.current = false;
       setTiles(prevTiles => {
@@ -203,22 +196,15 @@ const Tiles = ({ resize }) => {
         return prevTiles;
       });
     }
-
-    window.addEventListener('transitionend', transitionEnd, { once: true });
-
-    return () => {
-      console.log('unmount');
-      window.removeEventListener('transitionend', transitionEnd);
-    };
   }, [mergeTiles.current]);
 
   return (
-    <>
+    <div ref={refContainer}>
       {tiles.map(tile => {
         return <Tile key={tile.id} tile={tile} resize={resize} />;
       })}
-    </>
+    </div>
   );
 };
 
-export default memo(Tiles);
+export { Tiles };

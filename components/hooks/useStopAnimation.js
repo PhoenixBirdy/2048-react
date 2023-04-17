@@ -6,9 +6,7 @@ export const useStopAnimation = () => {
   const refBoard = useRef();
 
   useEffect(() => {
-    console.log('[useEffect] custom: []');
     function handleResize() {
-      console.log('[useEffect] custom: RESIZE');
       setWidth(refBoard.current.clientWidth);
     }
 
@@ -17,14 +15,12 @@ export const useStopAnimation = () => {
   }, []);
 
   useEffect(() => {
-    console.log('[useEffect] custom: WIDTH');
     setIsAnimate(true);
     const id = setTimeout(() => {
       setIsAnimate(false);
     }, 60);
 
     return () => {
-      console.log('[useEffect] custom: WIDTH CLEAR');
       clearTimeout(id);
     };
   }, [width]);

@@ -2,10 +2,9 @@ import React, { useRef, useEffect } from 'react';
 import styles from './Tile.module.css';
 
 export const Tile = ({ tile, resize }) => {
-  console.log('[Tile]:', tile);
   const nodeTile = useRef();
   const drop = tile.drop();
-  const transitionAnimation = resize ? '' : styles.transaction;
+  const transitionAnimation = resize ? '' : styles.transition;
 
   useEffect(() => {
     function setVariableProperties() {
@@ -26,7 +25,7 @@ export const Tile = ({ tile, resize }) => {
     <div
       ref={nodeTile}
       className={`${styles.tile} ${transitionAnimation} ${
-        drop ? styles.drop : null
+        drop ? styles.drop : ''
       }`}
     >
       {tile.value}

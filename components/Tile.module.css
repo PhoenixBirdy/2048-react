@@ -23,8 +23,9 @@
   align-items: center;
 }
 
-.transaction {
-  transition: 100ms;
+.transition {
+  transition-property: left, top;
+  transition-duration: 200ms;
 }
 
 .drop {
