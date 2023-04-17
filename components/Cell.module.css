@@ -1,0 +1,7 @@
+.cell {
+  background-color: #444;
+  border-radius: 1vmin;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
