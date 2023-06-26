@@ -1,3 +1,7 @@
 # 2048-react
-Need to fix direction->down 
+
+It is a simple game on React.
+
+
+PS: Need to fix direction->down 
 Problem with addEventListener with "transitionend"
